@@ -4,12 +4,12 @@ importPackage(Packages.liquibase.util.csv);
 importPackage(com.gargoylesoftware.htmlunit);
 importPackage(com.gargoylesoftware.htmlunit.html);
 
-var reader = new CSVReader( new FileReader("/tmp/NasdaqSPOs.csv") );
+var reader = new CSVReader( new FileReader("/tmp/NasdaqIPOs.csv") );
 var lines = reader.readAll();
 var webClient = new WebClient( BrowserVersion.FIREFOX_3_6 );
 webClient.setJavaScriptEnabled( false );
 webClient.setCssEnabled( false );
-var writer = new BufferedWriter( new FileWriter("/tmp/NasdaqSPOProfiles.csv") );
+var writer = new BufferedWriter( new FileWriter("/tmp/NasdaqIPOProfiles.csv") );
 
 for ( var i=0; i<lines.size(); i++ ) {
     var row = lines.get(i);
@@ -69,5 +69,5 @@ function getPage( urlString ) {
      } 
    }
 
-   return  "\"" + companyName + "\",\"" + companyAddress + "\",\"" + companyPhone + "\",\"" + companyWebsite + "\",\"" + employeeCount + "\",\"" + sharesOutstanding + "\"";
+   return  "\"" + companyName + "\",\"" + proposedSymbol + "\",\"" + companyAddress + "\",\"" + companyPhone + "\",\"" + companyWebsite + "\",\"" + employeeCount + "\",\"" + sharesOutstanding + "\"";
 }
