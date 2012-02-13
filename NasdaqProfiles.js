@@ -4,12 +4,12 @@ importPackage(Packages.liquibase.util.csv);
 importPackage(com.gargoylesoftware.htmlunit);
 importPackage(com.gargoylesoftware.htmlunit.html);
 
-var reader = new CSVReader( new FileReader("/tmp/NasdaqIPOs.csv") );
+var reader = new CSVReader( new FileReader("/tmp/NasdaqSPOs.csv") );
 var lines = reader.readAll();
 var webClient = new WebClient( BrowserVersion.FIREFOX_3_6 );
 webClient.setJavaScriptEnabled( false );
 webClient.setCssEnabled( false );
-var writer = new BufferedWriter( new FileWriter("/tmp/NasdaqIPOProfiles.csv") );
+var writer = new BufferedWriter( new FileWriter("/tmp/NasdaqSPOProfiles.csv") );
 
 for ( var i=0; i<lines.size(); i++ ) {
     var row = lines.get(i);
@@ -58,7 +58,7 @@ function getPage( urlString ) {
              if ( row.getCell(0).asText().trim().startsWith("Employees") ) {
                  employeeCount =  row.getCell(1).asText().trim();
              }
-             if ( row.getCell(0).asText().trim().equals("Proposed Symbol") ) {
+             if ( row.getCell(0).asText().trim().contains("Symbol") ) {
                 proposedSymbol =  row.getCell(1).asText().trim();
              }
              if ( row.getCell(0).asText().trim().equals("Shares Outstanding") ) {
