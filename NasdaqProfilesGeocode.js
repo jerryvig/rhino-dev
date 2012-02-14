@@ -4,16 +4,16 @@ importPackage(Packages.geo.google);
 importPackage(Packages.geo.google.datamodel);
 importPackage(Packages.liquibase.util.csv);
 
-var reader = new CSVReader(new FileReader("/tmp/NasdaqIPOProfiles.csv"));
+var reader = new CSVReader(new FileReader("/tmp/NasdaqSPOProfiles.csv"));
 var lines = reader.readAll();
-var writer = new CSVWriter(new FileWriter("/tmp/NasdaqIPOProfilesGeocode.csv"));
+var writer = new CSVWriter(new FileWriter("/tmp/NasdaqSPOProfilesGeocode.csv"));
 reader.close();
 
 var st = new GeoAddressStandardizer( "ABQIAAAAI1oIsi6Dv7MlmxUm1lRR_xTmarcuMJj81CoryY3grjEx5dFcyxQoeQTublWNe-B1iLVnHNrRuJD6_w" );
 
 for ( var i=0; i<lines.size(); i++ ) {
    var row = lines.get(i);
-   var addyString = row[11].replace("\n",", ");
+   var addyString = row[10].replace("\n",", ");
    try {
      var geoList = st.standardizeToGeoUsAddresses( addyString );
      var city = geoList.get(0).getCity();
