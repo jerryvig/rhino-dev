@@ -1,5 +1,6 @@
 importPackage(java.io);
 importPackage(java.util);
+importPackage(java.lang);
 importPackage(Packages.liquibase.util.csv);
 importPackage(org.openqa.selenium.htmlunit);
 importPackage(com.gargoylesoftware.htmlunit);
@@ -23,11 +24,13 @@ reader.close();
 for ( var i=0; i<tickers.length; i++ ) {
    print( "Processing ticker = " + tickers[i] );
    scrapeTicker( tickers[i] ); 
+   Thread.sleep( 400 );
 }
 
 function scrapeTicker( ticker ) {
     var urlString = "http://ichart.finance.yahoo.com/table.csv?s="+ticker+"&a=00&b=29&c=2000&d=01&e=19&f=2012&g=v&ignore=.csv";
     print( urlString );
     driver.get( urlString );
+    var contentString = driver.getPageSource();
+    print( contentString );
 }
-
