@@ -15,6 +15,7 @@ var driver = new HtmlUnitDriver( BrowserVersion.FIREFOX_3_6 );
 var csvOut = new CSVWriter( new File("./MorningstarFCF.csv"), null );
 var epsOut = new CSVWriter( new File("./MorningstarEPS.csv"), null );
 var balanceOut = new CSVWriter( new File("./MorningstarBalanceSheet.csv"), null );
+var keyRatiosOut = new CSVWriter( new File("./MorningstarKeyRatios.csv"), null );
 
 for ( var i=0; i<tickerList.length; i++ ) {
     print( tickerList[i] );
@@ -24,9 +25,14 @@ for ( var i=0; i<tickerList.length; i++ ) {
     Thread.sleep( 200 );
     getBalanceSheet( tickerList[i] );
     Thread.sleep( 200 );
+    getKeyRatios( tickerList[i] );
+    Thread.sleep( 200 );
 }
 
 csvOut.close();
+epsOut.close();
+balanceOut.close();
+keyRatiosOut.close();
 
 function getFreeCashFlow( tickerSymbol ) {
    try {
@@ -39,7 +45,7 @@ function getFreeCashFlow( tickerSymbol ) {
      }
      reader.close();
 
-     var colIndex = jContent.indexOf('{"c');
+     // var colIndex = jContent.indexOf('{"c');
      var cleanJson = eval( '(' + jContent.substring(19,jContent.length()-1) + ')' );
      var writer = new BufferedWriter( new FileWriter( "/mnt/ramdisk/rhino-dev/tmp.html" ) );
      writer.write( "<html><body>" + cleanJson.result + "</body></html>" );
@@ -55,8 +61,7 @@ function getFreeCashFlow( tickerSymbol ) {
       var yearVal = yearDiv.findElement( By.id("Y_"+j ) );
       var yearMonth = yearVal.getText().trim();
       print( tickerSymbol + ", " + yearMonth + ", " + freeCashFlow );
-      var outArray = Array( tickerSymbol, yearMonth, freeCashFlow );
-      csvOut.writeData( outArray );
+      csvOut.writeData( Array( tickerSymbol, yearMonth, freeCashFlow ) );
      }
    } catch ( err ) {
       print( err.message );
@@ -74,7 +79,7 @@ function getEPS( tickerSymbol ) {
      }
      reader.close();
 
-     var colIndex = jContent.indexOf('{"c');
+     // var colIndex = jContent.indexOf('{"c');
      var cleanJson = eval( '(' + jContent.substring(19,jContent.length()-1) + ')' );
      var writer = new BufferedWriter( new FileWriter( "/mnt/ramdisk/rhino-dev/tmp.html" ) );
      writer.write( "<html><body>" + cleanJson.result + "</body></html>" );
@@ -93,8 +98,7 @@ function getEPS( tickerSymbol ) {
       var yearVal = yearDiv.findElement( By.id("Y_"+j ) );
       var yearMonth = yearVal.getText().trim();
       print( tickerSymbol + ", " + yearMonth + ", " + dilutedEps );
-      var outArray = Array( tickerSymbol, yearMonth, basicEps, dilutedEps );
-      epsOut.writeData( outArray );
+      epsOut.writeData( Array( tickerSymbol, yearMonth, basicEps, dilutedEps ) );
      }
    } catch ( err ) {
        print( err.message );
@@ -112,7 +116,7 @@ function getBalanceSheet( tickerSymbol ) {
      }
      reader.close();
 
-     var colIndex = jCon.indexOf('{"c');
+     // var colIndex = jCon.indexOf('{"c');
      var cleanJson = eval( '(' + jCon.substring(19,jCon.length()-1) + ')' );
      var writer = new BufferedWriter( new FileWriter( "/mnt/ramdisk/rhino-dev/tmp.html" ) );
      writer.write( "<html><body>" + cleanJson.result + "</body></html>" );
@@ -136,5 +140,37 @@ function getBalanceSheet( tickerSymbol ) {
 
    } catch ( err ) {
       print ( err.message );
+   }
+}
+
+function getKeyRatios( tickerSymbol ) {
+   try {
+     var url = new URL("http://financials.morningstar.com/ajax/keystatsAjax.html?t="+tickerSymbol+"&culture=en_us&region=USA&order=asc&r=704546&callback=jsonp1330654623137&_=1330654623233");
+     var reader = new BufferedReader(new InputStreamReader(url.openStream()));
+     var jCon = new java.lang.String();
+     var s = new java.lang.String();
+     while ((s = reader.readLine())!=null) {
+	jCon = jCon.concat(s);
+     }
+     reader.close();
+
+     var colIndex = jCon.indexOf('{"C');
+     var cleanJson = eval( '(' + jCon.substring(colIndex,jCon.length()-1) + ')' );
+     var writer = new BufferedWriter( new FileWriter( "/mnt/ramdisk/rhino-dev/tmp.html" ) );
+     writer.write( "<html><body>" + cleanJson.ksContent + "</body></html>" );
+     writer.close();
+     driver.get( "file:///mnt/ramdisk/rhino-dev/tmp.html" );
+     
+     for ( var k=0; k<=10; k++ ) {
+       try {
+         var td = driver.findElementByXPath("//td[@headers='pr-pro-Y"+k+" pr-profit i22']");
+         var headerTd = driver.findElementByXPath("//th[@id='pr-pro-Y"+k+"']");
+         print( tickerSymbol + "," + headerTd.getText() + "," + td.getText() );
+         keyRatiosOut.writeData( new Array( tickerSymbol, headerTd.getText(), td.getText() ) );
+       } catch ( err ) { print( err.message ); }
+     }
+
+   } catch ( err ) {
+       print( err.message );
    }
 }
