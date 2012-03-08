@@ -5,8 +5,7 @@ importPackage(com.gargoylesoftware.htmlunit);
 importPackage(org.openqa.selenium);
 importPackage(org.hsqldb.util);
 
-var tickerFile = readFile("/tmp/R3K-CBOE-TickerList.csv");
-var tickerList = tickerFile.split("\n");
+var tickerList = readFile("/tmp/R3K-CBOE-TickerList.csv").split("\n");
 for ( var i=0; i<tickerList.length-1; i++ ) {
     tickerList[i] = tickerList[i].trim();
 }
